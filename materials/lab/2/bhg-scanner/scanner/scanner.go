@@ -2,7 +2,10 @@
 // Code : https://github.com/blackhat-go/bhg/blob/c27347f6f9019c8911547d6fc912aa1171e6c362/ch-2/tcp-scanner-final/main.go
 // License: {$RepoRoot}/materials/BHG-LICENSE
 // Useage:
-// {TODO 1: FILL IN}
+// PortScanner requires a string parameter. It will scan ports 1 - 1024 of an address you give it. Use the syntax:
+// PortScanner("address.org")
+// or if you do not wish to enter an address (it will use a default value)
+// PortScanner("")
 
 package scanner
 
