@@ -1,1 +1,2 @@
-You might need to do a "go mod init bhg-scanner" or "go mod tidy"
+This is a port scanner. It will scan ports based on a given address, and it will do so asynchronously. 
+I have modified the code to be able to take in any address, which is just implemented as an extra string parameter.
