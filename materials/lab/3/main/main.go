@@ -11,11 +11,12 @@ import (
 	"os"
 	"encoding/json"
 	"shodan/shodan"
+	"strconv"
 )
 
 func main() {
-	if len(os.Args) != 2 {
-		log.Fatalln("Usage: main <searchterm>")
+	if len(os.Args) != 3 {
+		log.Fatalln("Usage: main <searchterm> <pageamount>")
 	}
 	apiKey := os.Getenv("SHODAN_API_KEY")
 	s := shodan.New(apiKey)
@@ -28,19 +29,24 @@ func main() {
 		info.QueryCredits,
 		info.ScanCredits)
 
-	hostSearch, err := s.HostSearch(os.Args[1])
-	if err != nil {
+	pa, err2 := strconv.Atoi(os.Args[2]) 
+
+	if err2 != nil {
 		log.Panicln(err)
 	}
 
-	fmt.Printf("Host Data Dump\n")
+	for i:=0; i < pa; i++ {
+		hostSearch, err := s.HostSearch(os.Args[1],i)
+	if err != nil {
+		log.Panicln(err)
+	}
+	
+	fmt.Printf("Host Data Dump, page %d\n", i)
 	for _, host := range hostSearch.Matches {
 		fmt.Println("==== start ",host.IPString,"====")
 		h,_ := json.Marshal(host)
 		fmt.Println(string(h))
 		fmt.Println("==== end ",host.IPString,"====")
-		//fmt.Println("Press the Enter Key to continue.")
-		//fmt.Scanln()
 	}
 
 
@@ -49,6 +55,8 @@ func main() {
 	for _, host := range hostSearch.Matches {
 		fmt.Printf("%s, %d\n", host.IPString, host.Port)
 	}
+	}
+	
 
 
 }
