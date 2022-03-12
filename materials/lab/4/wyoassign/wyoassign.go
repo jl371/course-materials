@@ -65,14 +65,25 @@ func GetAssignment(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 	params := mux.Vars(r)
 
+	var searched int
+
 	for _, assignment := range Assignments {
+		searched++
 		if assignment.Id == params["id"]{
 			json.NewEncoder(w).Encode(assignment)
 			break
 		}
 	}
+	response := make(map[string]string)
 	//TODO : Provide a response if there is no such assignment
-	//w.Write(jsonResponse)
+	if (searched == len(Assignments)) {
+	    response["status"] = "No Such ID."
+	}
+	jsonResponse, err := json.Marshal(response)
+	if err != nil {
+		return
+	}
+	w.Write(jsonResponse)
 }
 
 func DeleteAssignment(w http.ResponseWriter, r *http.Request) {
