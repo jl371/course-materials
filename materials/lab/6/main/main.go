@@ -9,10 +9,6 @@ import (
 	"scrape/scrape"
 )
 
-//TODO_1: Logging right now just happens, create a global constant integer LOG_LEVEL 
-//TODO_1: When LOG_LEVEL = 0 DO NOT LOG anything
-//TODO_1: When LOG_LEVEL = 1 LOG API details only 
-//TODO_1: When LOG_LEVEL = 2 LOG API details and file matches (e.g., everything)
 var LOG_LEVEL int = 2
 
 func main() {
@@ -20,7 +16,7 @@ func main() {
 	log.Println("starting API server")
 	//create a new router
 	router := mux.NewRouter()
-	log.Println("creating routes")
+	log.Println("creating routes") 
 	//specify endpoints
 	router.HandleFunc("/", scrape.MainPage).Methods("GET")
 

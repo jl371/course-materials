@@ -24,7 +24,7 @@ import (
 func walkFn(w http.ResponseWriter) filepath.WalkFunc {
     return func(path string, f os.FileInfo, err error) error {
         w.Header().Set("Content-Type", "application/json")
-
+		var added int = 0
         for _, r := range regexes {
             if r.MatchString(path) {
                 var tfile FileInfo
@@ -32,25 +32,29 @@ func walkFn(w http.ResponseWriter) filepath.WalkFunc {
                 tfile.Filename = string(filename)
                 tfile.Location = string(dir)
 
-                //TODO_5: As it currently stands the same file can be added to the array more than once 
-                //TODO_5: Prevent this from happening by checking if the file AND location already exist as a single record
+				var it int = 0
+				for i := 0; i < len(Files); i++ {
+					var ifile FileInfo = Files[i]
+					it++
+					if (tfile.Filename == ifile.Filename && tfile.Location == ifile.Location) {
+						break
+					}
+				}
+				if (it == len(Files)) { //didn't find it
+					Files = append(Files, tfile)
+               	    if w != nil && len(Files)>0 {
 
-				
-
-                Files = append(Files, tfile)
-
-                if w != nil && len(Files)>0 {
-
-                    //TODO_6: The current key value is the LEN of Files (this terrible); 
-                    //TODO_6: Create some variable to track how many files have been added
-                    w.Write([]byte(`"`+(strconv.FormatInt(int64(len(Files)), 10))+`":  `))
-                    json.NewEncoder(w).Encode(tfile)
-                    w.Write([]byte(`,`))
-
-                } 
                 
-                log.Printf("[+] HIT: %s\n", path)
+                    	w.Write([]byte(`"`+(strconv.FormatInt(int64(added), 10))+`":  `))
+                    	json.NewEncoder(w).Encode(tfile)
+                    	w.Write([]byte(`,`))
 
+                	} 
+                
+                	log.Printf("[+] HIT: %s\n", path)
+					added++
+				}
+                
             }
 
         }
@@ -136,8 +140,6 @@ func FindFile(w http.ResponseWriter, r *http.Request) {
     if ok && len(q[0]) > 0 {
         log.Printf("Entering search with query=%s",q[0])
 
-        // ADVANCED: Create a function in scrape.go that returns a list of file locations; call and use the result here
-        // e.g., func finder(query string) []string { ... }
 		var fnd bool = false
         for _, File := range Files {
 		    if File.Filename == q[0] {
@@ -145,7 +147,6 @@ func FindFile(w http.ResponseWriter, r *http.Request) {
                 fnd = true
 		    }
         }
-        //TODO_9: Handle when no matches exist; print a useful json response to the user; hint you might need a "FOUND variable" to check here ...
 		if fnd == false {
 			w.Write([]byte(`"File not found"`))
 		}
@@ -185,9 +186,9 @@ func IndexFiles(w http.ResponseWriter, r *http.Request) {
     w.Write([]byte(`{ `))
     
     if regExOK {
-		filepath.Walk(location[0], walkFn2(regEx[0]))
-	} else filepath.Walk(location[0], walkFn(w)) {
-		log.Panicln(err)
+		filepath.Walk(location[0], walkFn2(w, regEx[0]))
+	} else {
+		filepath.Walk(location[0], walkFn(w))
 	}
 
     //wrapper to make "nice json"
